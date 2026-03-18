@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leigh Household — Operations System</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1929;--navy2:#111D2E;--navy3:#172840;--gold:#C9A84C;--gold2:#E2C878;--gold3:#A08030;--gold-glow:rgba(201,168,76,0.12);--card:rgba(17,29,46,0.85);--card2:rgba(23,40,64,0.6);--brd:rgba(201,168,76,0.12);--brd2:rgba(201,168,76,0.25);--text:#A8B4C8;--text2:#7888A0;--white:#DDE4F0;--red:#E8706A;--amber:#D4A04C;--green:#5CB87A;--display:'Cormorant Garamond',Georgia,serif;--body:'Outfit',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;--ease:cubic-bezier(0.22,1,0.36,1);--ease2:cubic-bezier(0.34,1.56,0.64,1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--navy);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--navy3);border-radius:10px}
+
+/* === AMBIENT === */
+.amb{position:fixed;inset:0;z-index:0;pointer-events:none;
+background:radial-gradient(ellipse 50% 60% at 15% 20%,rgba(201,168,76,0.04) 0%,transparent 70%),
+radial-gradient(ellipse 40% 50% at 85% 75%,rgba(88,130,190,0.05) 0%,transparent 60%),
+radial-gradient(ellipse 60% 30% at 50% 0%,rgba(11,25,41,0.8) 0%,transparent 50%),
+linear-gradient(180deg,rgba(11,25,41,0) 0%,rgba(11,25,41,0.3) 100%)}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.particle{position:fixed;width:1.5px;height:1.5px;background:var(--gold);border-radius:50%;opacity:0;z-index:0;pointer-events:none;animation:pf linear infinite}
+@keyframes pf{0%{opacity:0;transform:translateY(100vh) scale(0)}8%{opacity:.35}92%{opacity:.05}100%{opacity:0;transform:translateY(-10vh) scale(1)}}
+
+/* === HEADER === */
+.hdr{position:relative;z-index:10;padding:18px 32px 14px;display:flex;justify-content:space-between;align-items:flex-end;
+background:linear-gradient(180deg,rgba(11,25,41,0.97),rgba(11,25,41,0.92));backdrop-filter:blur(24px);
+border-bottom:1px solid var(--brd);animation:sd .7s var(--ease) both}
+@keyframes sd{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+.hdr::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,var(--gold) 50%,transparent 95%);opacity:.2}
+.hdr-l .sup{font-size:9.5px;color:var(--gold);letter-spacing:4.5px;font-weight:600;text-transform:uppercase;font-family:var(--body)}
+.hdr-l .ttl{font-family:var(--display);font-size:26px;font-weight:700;color:var(--white);margin-top:2px;letter-spacing:.5px}
+.hdr-r{text-align:right;font-size:10px;color:var(--text2);line-height:1.7}
+.hdr-r .greet{color:var(--gold2);font-weight:500;font-size:11px}
+
+/* === NAV === */
+.nav{position:relative;z-index:10;display:flex;gap:2px;padding:8px 24px;background:rgba(11,25,41,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(23,40,64,0.5);animation:sd .7s var(--ease) .08s both}
+.nt{background:transparent;color:var(--text2);border:none;padding:9px 16px;border-radius:8px;cursor:pointer;font-size:11.5px;font-weight:500;font-family:var(--body);display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .35s var(--ease);position:relative}
+.nt::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--gold);border-radius:2px;transform:scaleX(0);transition:transform .35s var(--ease)}
+.nt:hover{color:var(--white);background:rgba(23,40,64,0.5)}
+.nt.on{color:var(--gold2);font-weight:600}.nt.on::after{transform:scaleX(1)}.nt.on .ic{animation:popIn .3s var(--ease2) both}
+.nt .ic{font-size:13px}
+
+/* === LAYOUT === */
+.main{position:relative;z-index:5;max-width:960px;margin:0 auto;min-height:calc(100vh - 100px)}
+.pan{animation:pi .45s var(--ease) both}
+@keyframes pi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.sh{padding:22px 28px 10px}
+.sh h2{font-family:var(--display);font-size:28px;color:var(--gold2);font-weight:600;letter-spacing:.3px;animation:fu .5s var(--ease) .1s both}
+.sh p{font-size:11.5px;color:var(--text2);margin-top:3px;animation:fu .5s var(--ease) .18s both}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.stg>*{animation:fu .4s var(--ease) both}
+.stg>*:nth-child(1){animation-delay:.04s}.stg>*:nth-child(2){animation-delay:.08s}.stg>*:nth-child(3){animation-delay:.12s}.stg>*:nth-child(4){animation-delay:.16s}.stg>*:nth-child(5){animation-delay:.2s}.stg>*:nth-child(6){animation-delay:.24s}.stg>*:nth-child(7){animation-delay:.28s}.stg>*:nth-child(8){animation-delay:.32s}.stg>*:nth-child(9){animation-delay:.36s}.stg>*:nth-child(10){animation-delay:.4s}
+
+/* === CARDS === */
+.card{background:var(--card);border:1px solid var(--brd);border-radius:14px;backdrop-filter:blur(12px);transition:all .35s var(--ease);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;border-radius:14px;padding:1px;background:linear-gradient(135deg,rgba(201,168,76,0.15),transparent 40%,transparent 60%,rgba(201,168,76,0.08));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .35s}
+.card:hover::before{opacity:1}
+.card:hover{border-color:var(--brd2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+
+/* === DASHBOARD === */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 28px;margin-bottom:16px;animation:fu .5s var(--ease) .15s both}
+.kpi{padding:16px 18px;text-align:center}
+.kpi .kn{font-family:var(--display);font-size:32px;font-weight:700;line-height:1}
+.kpi .kl{font-size:9.5px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:5px;font-weight:500}
+.kpi .ks{font-size:10px;margin-top:4px;font-weight:500}
+.kpi-red .kn{color:var(--red)}.kpi-amber .kn{color:var(--amber)}.kpi-green .kn{color:var(--green)}.kpi-gold .kn{color:var(--gold2)}
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.pulse-red{background:var(--red)}.pulse-amber{background:var(--amber)}.pulse-green{background:var(--green)}
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 28px;margin-bottom:16px}
+.dash-section{padding:16px 18px}
+.dash-section .ds-title{font-family:var(--display);font-size:16px;color:var(--gold2);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.dash-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(23,40,64,0.4);font-size:11.5px}
+.dash-item:last-child{border-bottom:none}
+.dash-item .di-name{color:var(--text)}.dash-item .di-val{font-weight:600}
+
+/* === BADGES === */
+.badge{padding:3px 10px;border-radius:6px;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.b-ok{background:rgba(92,184,122,0.12);color:var(--green);border:1px solid rgba(92,184,122,0.15)}
+.b-low{background:rgba(212,160,76,0.12);color:var(--amber);border:1px solid rgba(212,160,76,0.15)}
+.b-reorder{background:rgba(232,112,106,0.12);color:var(--red);border:1px solid rgba(232,112,106,0.15)}
+
+/* === FILTERS === */
+.frow{display:flex;gap:5px;padding:0 28px;margin-bottom:14px;flex-wrap:wrap;animation:fu .5s var(--ease) .25s both}
+.fb{background:var(--card2);color:var(--text2);border:1px solid rgba(23,40,64,0.5);padding:6px 13px;border-radius:8px;font-size:10.5px;cursor:pointer;font-family:var(--body);font-weight:500;transition:all .3s var(--ease)}
+.fb:hover{background:var(--navy3);color:var(--white);border-color:rgba(23,40,64,0.8)}
+.fb.on{background:linear-gradient(135deg,var(--gold3),var(--gold));color:var(--navy);font-weight:700;border-color:transparent;box-shadow:0 2px 10px rgba(201,168,76,0.2)}
+
+/* === ALERT === */
+.alert{background:linear-gradient(135deg,rgba(232,112,106,0.08),rgba(232,112,106,0.04));border:1px solid rgba(232,112,106,0.15);border-radius:12px;padding:12px 16px;margin:0 28px 14px;display:flex;align-items:center;gap:12px;animation:fu .5s var(--ease) .2s both}
+.alert .ai{font-size:20px}.alert .at{color:var(--red);font-weight:600;font-size:12px}.alert .ad{color:rgba(232,112,106,0.7);font-size:10.5px}
+
+/* === TABLE === */
+.tw{overflow-x:auto;padding:0 28px;animation:fu .5s var(--ease) .3s both}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:11.5px;border-radius:12px;overflow:hidden;border:1px solid var(--brd)}
+.tbl th{background:var(--navy3);color:var(--gold);padding:10px 12px;text-align:left;font-weight:600;font-size:9.5px;letter-spacing:.8px;text-transform:uppercase}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(23,40,64,0.3);transition:background .2s}
+.tbl tr:nth-child(even) td{background:rgba(23,40,64,0.15)}
+.tbl tr:hover td{background:rgba(201,168,76,0.04)}
+.tbl .in{color:var(--white);font-weight:500}.tbl .mt{color:var(--text2)}.tbl .wr{color:var(--red);font-weight:600}
+
+/* === CHAT === */
+.ca{flex:1;overflow-y:auto;padding:20px 28px}
+.cm{margin-bottom:14px;display:flex;animation:mi .4s var(--ease) both}
+@keyframes mi{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.cm.u{justify-content:flex-end}.cm.a{justify-content:flex-start}
+.cb{max-width:78%;padding:12px 16px;border-radius:14px;font-size:12.5px;line-height:1.7;white-space:pre-wrap}
+.cm.u .cb{background:var(--navy3);color:var(--white);border-bottom-right-radius:4px;border:1px solid rgba(23,40,64,0.5)}
+.cm.a .cb{background:var(--card);color:var(--text);border-bottom-left-radius:4px;border:1px solid var(--brd)}
+.cir{padding:14px 24px 20px;border-top:1px solid rgba(23,40,64,0.3);display:flex;gap:10px}
+.cin{flex:1;background:var(--card2);border:1px solid rgba(23,40,64,0.4);color:var(--white);padding:11px 16px;border-radius:10px;font-size:12.5px;font-family:var(--body);outline:none;transition:all .3s var(--ease)}
+.cin:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}.cin::placeholder{color:var(--text2)}
+
+/* === BUTTONS === */
+.bg{background:linear-gradient(135deg,var(--gold3),var(--gold));color:var(--navy);border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;font-family:var(--body);transition:all .3s var(--ease);box-shadow:0 2px 10px rgba(201,168,76,0.15)}
+.bg:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,168,76,0.3)}.bg:active{transform:translateY(0)}.bg:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.bo{background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:11px;font-family:var(--body);font-weight:500;transition:all .3s var(--ease)}
+.bo:hover{background:var(--gold-glow);border-color:var(--gold)}
+
+/* === SUGGESTIONS === */
+.sugs{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:20px}
+.sug{background:var(--card2);border:1px solid rgba(23,40,64,0.4);color:var(--text2);padding:7px 14px;border-radius:8px;font-size:10.5px;cursor:pointer;font-family:var(--body);transition:all .3s var(--ease)}
+.sug:hover{background:var(--navy3);color:var(--white);border-color:var(--brd2);transform:translateY(-1px)}
+
+/* === GUEST === */
+.gcards{display:flex;gap:10px;flex-wrap:wrap;padding:0 28px;margin-bottom:14px;animation:fu .5s var(--ease) .2s both}
+.gc{padding:10px 16px;cursor:pointer}.gc .gn{font-size:12px;font-weight:600;color:var(--text)}.gc .gr{font-size:10px;color:var(--text2)}
+.gc.sel{background:linear-gradient(135deg,var(--gold3),var(--gold))!important;border-color:transparent!important}.gc.sel .gn{color:var(--navy)}.gc.sel .gr{color:rgba(11,25,41,0.6)}
+.gc.sel::before{opacity:0!important}
+.gdet{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:16px;margin:0 28px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11.5px;animation:fu .3s var(--ease) both}
+.gdet .gl{color:var(--text2)}.gdet .gv{color:var(--text)}.ny{color:var(--green)}.nn{color:var(--red)}
+
+/* === COMPLIANCE === */
+.ci{padding:12px 16px;display:flex;align-items:center;gap:14px;margin:0 28px 8px}
+.ci.critical{border-left:3px solid var(--red)}.ci.high{border-left:3px solid var(--amber)}.ci.medium{border-left:3px solid #C4B944}.ci.low{border-left:3px solid var(--text2)}
+.ci:hover{transform:translateX(3px)}
+.cd{min-width:52px;text-align:center}.cd .dn{font-family:var(--display);font-size:22px;font-weight:700}.cd .dn.ov{color:var(--red)}.cd .dn.ur{color:var(--amber)}.cd .ds{font-size:8.5px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.cif{flex:1}.cif .cn{color:var(--white);font-size:12.5px;font-weight:500}.cif .cac{color:var(--text2);font-size:10.5px;margin-top:2px}
+.cmt{text-align:right;min-width:75px}.cmt .cdt{color:var(--text2);font-size:10px}.cmt .cct{font-size:8.5px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
+
+.sboxes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 28px;margin-bottom:14px;animation:fu .5s var(--ease) .15s both}
+.sb{border-radius:12px;padding:14px;text-align:center;transition:transform .3s var(--ease)}.sb:hover{transform:translateY(-2px)}
+.sb .sn{font-family:var(--display);font-size:28px;font-weight:700}.sb .sl{font-size:9px;opacity:.8;margin-top:3px;text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+
+/* === MISC === */
+.rbox{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:0 28px;white-space:pre-wrap;font-size:12px;color:var(--text);line-height:1.8;max-height:460px;overflow-y:auto;font-family:var(--mono);animation:fu .4s var(--ease) both}
+.emp{text-align:center;padding:50px 28px;color:var(--text2);animation:fu .5s var(--ease) .15s both}
+.emp .ei{font-size:40px;margin-bottom:10px;filter:drop-shadow(0 0 12px var(--gold-glow))}.emp p{font-size:15px;font-family:var(--display);color:var(--text)}.emp .es{font-size:11px;margin-top:5px;font-family:var(--body)}
+.sbanner{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:16px 20px;margin:16px 28px;animation:fu .5s var(--ease) .2s both}
+.sbanner .sbt{color:var(--gold);font-weight:600;font-size:12px;margin-bottom:5px}.sbanner .stx{color:var(--text2);font-size:11px;line-height:1.6}
+.sbanner input{background:var(--navy2);border:1px solid rgba(23,40,64,0.5);color:var(--white);padding:9px 14px;border-radius:8px;font-size:11px;font-family:var(--mono);width:100%;margin-top:8px;outline:none;transition:border-color .3s}.sbanner input:focus{border-color:var(--gold)}
+.ldots{display:inline-flex;gap:4px;padding:4px 0}.ldots span{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:dp 1.2s ease-in-out infinite}.ldots span:nth-child(2){animation-delay:.2s}.ldots span:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,80%,100%{opacity:.15;transform:scale(.7)}40%{opacity:1;transform:scale(1.1)}}
+
+/* CONFIG */
+.cbox{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:18px;margin-bottom:14px}
+.cbox-t{font-family:var(--display);font-size:17px;color:var(--gold2);font-weight:600;margin-bottom:10px}
+.clbl{color:var(--text2);font-size:10px;display:block;margin-bottom:4px;font-weight:500;letter-spacing:.3px;text-transform:uppercase}
+.cta{width:100%;background:var(--navy2);border:1px solid rgba(23,40,64,0.5);color:var(--white);padding:10px 14px;border-radius:8px;font-size:11px;font-family:var(--mono);line-height:1.6;resize:vertical;outline:none}.cta:focus{border-color:var(--gold)}
+.cstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.csb{text-align:center;background:rgba(23,40,64,0.3);border-radius:8px;padding:10px}.csb .cn{font-family:var(--display);font-size:22px;font-weight:700;color:var(--gold2)}.csb .cl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.cmb{background:var(--card2);border:1px solid rgba(23,40,64,0.4);border-radius:10px;padding:10px 14px;color:var(--text);font-size:11px;margin-bottom:12px;animation:fu .3s var(--ease) both}
+.dz{border:2px dashed rgba(23,40,64,0.5);border-radius:14px;padding:30px 20px;text-align:center;transition:all .3s var(--ease);cursor:pointer;margin-bottom:14px;background:rgba(23,40,64,0.15)}
+.dz:hover,.dz.ov{border-color:var(--gold);background:var(--gold-glow)}.dz.pr{opacity:.6;pointer-events:none;border-color:var(--gold)}
+.dz .di{font-size:32px;margin-bottom:6px}.dz .dt{color:var(--gold);font-weight:600;font-size:12px}.dz .dd{color:var(--text2);font-size:10px;margin-top:3px}
+.pbar{height:2px;background:rgba(23,40,64,0.4);border-radius:4px;overflow:hidden;margin-top:10px}.pfill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold));border-radius:4px;width:100%;animation:pp 1.5s ease-in-out infinite}
+@keyframes pp{0%,100%{opacity:.5}50%{opacity:1}}
+
+
+/* === ANIMATIONS === */
+@keyframes countUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 6px rgba(201,168,76,0.03)}50%{box-shadow:0 0 14px rgba(201,168,76,0.08)}}
+@keyframes borderRotate{0%{--angle:0deg}100%{--angle:360deg}}
+@keyframes breathe{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes slideInL{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInR{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes ripple{0%{transform:scale(0);opacity:.4}100%{transform:scale(4);opacity:0}}
+@keyframes orbit{0%{transform:rotate(0deg) translateX(3px) rotate(0deg)}100%{transform:rotate(360deg) translateX(3px) rotate(-360deg)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes typeIn{from{width:0}to{width:100%}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.shimmer-text{background:linear-gradient(90deg,var(--gold3) 0%,var(--gold2) 25%,var(--gold) 50%,var(--gold2) 75%,var(--gold3) 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite}
+.glow-card{animation:glow 12s ease-in-out infinite}
+.breathe{animation:breathe 3s ease-in-out infinite}
+.pop-in{animation:popIn .5s var(--ease2) both}
+
+/* Animated progress bars */
+.prog-track{height:4px;background:rgba(23,40,64,0.4);border-radius:4px;overflow:hidden;margin-top:6px}
+.prog-bar-fill{height:100%;border-radius:4px;transition:width 1.2s var(--ease);position:relative}
+.prog-bar-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2s linear infinite;background-size:200% 100%}
+
+/* Orbiting dot */
+.orbit-dot{display:inline-block;animation:orbit 3s linear infinite}
+.orbit-dot::after{content:'';display:block;width:3px;height:3px;background:var(--gold);border-radius:50%}
+
+/* Ticker */
+.ticker-wrap{overflow:hidden;padding:8px 0;margin:0 28px 14px;border-radius:8px;background:rgba(232,112,106,0.04);border:1px solid rgba(232,112,106,0.08)}
+.ticker{display:flex;animation:ticker 25s linear infinite;white-space:nowrap}
+.ticker-item{padding:0 24px;font-size:10.5px;color:var(--red);font-weight:500;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ticker-item .tdot{width:4px;height:4px;border-radius:50%;background:var(--red);animation:pulse 1.5s ease-in-out infinite}
+
+/* Live clock */
+.live-clock{font-family:var(--mono);font-size:11px;color:var(--gold);font-weight:500;letter-spacing:1px}
+.clock-sep{animation:blink 1s step-end infinite}
+
+/* Ripple button */
+.bg{position:relative;overflow:hidden}
+.bg .rip{position:absolute;border-radius:50%;background:rgba(255,255,255,0.3);animation:ripple .6s linear;pointer-events:none}
+
+/* Animated KPI number */
+.kpi-num{display:inline-block;animation:countUp .6s var(--ease) both}
+.kpi-num.d1{animation-delay:.1s}.kpi-num.d2{animation-delay:.2s}.kpi-num.d3{animation-delay:.3s}.kpi-num.d4{animation-delay:.4s}
+
+/* Hover tilt */
+.tilt{transition:transform .4s var(--ease)}.tilt:hover{transform:perspective(600px) rotateY(2deg) rotateX(-1deg) translateY(-3px)}
+
+/* Animated border */
+.anim-border{position:relative}.anim-border::after{content:'';position:absolute;inset:-1px;border-radius:15px;padding:1px;background:conic-gradient(from var(--angle,0deg),transparent,var(--gold),transparent,var(--gold),transparent);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .5s;animation:borderRotate 4s linear infinite}
+.anim-border:hover::after{opacity:.3}
+
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+
+@media(max-width:640px){.hdr{padding:14px 16px 12px}.hdr-l .ttl{font-size:20px}.nav{padding:7px 12px;overflow-x:auto;gap:1px}.nt{font-size:10px;padding:7px 10px;gap:4px}.sh{padding:18px 16px 8px}.sh h2{font-size:22px}.kpi-row{grid-template-columns:1fr 1fr;padding:0 16px;gap:8px}.dash-grid{grid-template-columns:1fr;padding:0 16px}.frow{padding:0 16px}.tw{padding:0 16px}.tbl th{font-size:8.5px;padding:8px}.tbl td{padding:7px 8px;font-size:10.5px}.cir{padding:12px 16px 16px}.gcards{padding:0 16px}.gdet{grid-template-columns:1fr;margin:0 16px 12px}.ci{margin:0 16px 8px;padding:10px 12px}.sboxes{grid-template-columns:1fr;padding:0 16px}.rbox{margin:0 16px;padding:14px}.emp{padding:32px 16px}.sbanner{margin:12px 16px}.alert{margin:0 16px 12px}.ca{padding:16px}.cstats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="amb"></div><div class="grain"></div><div id="root"></div>
+<script>(function(){var w=console.warn;console.warn=function(){if(arguments[0]&&typeof arguments[0]==='string'&&arguments[0].indexOf('in-browser Babel')>-1)return;w.apply(console,arguments)}})();</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const{useState,useEffect,useRef}=React;
+
+const DI=[{item:"Sauvignon Blanc",type:"Wine",qty:6,min:3,location:"PR wine fridge",cost:18,status:"ok"},{item:"Chardonnay",type:"Wine",qty:4,min:2,location:"PR wine fridge",cost:25,status:"ok"},{item:"Pinot Noir",type:"Wine",qty:4,min:2,location:"ER wine rack",cost:28,status:"ok"},{item:"Cab. Sauvignon",type:"Wine",qty:3,min:2,location:"ER wine rack",cost:35,status:"low"},{item:"Champagne (Reims)",type:"Wine",qty:2,min:2,location:"PR wine fridge",cost:50,status:"low"},{item:"Reserve wines",type:"Wine",qty:4,min:6,location:"ER bar cabinet",cost:95,status:"reorder"},{item:"Glenfiddich 15",type:"Spirit",qty:1,min:1,location:"ER bar cabinet",cost:65,status:"ok"},{item:"Hendrick's Gin",type:"Spirit",qty:1,min:1,location:"ER bar cabinet",cost:35,status:"ok"},{item:"Acqua Panna",type:"Water",qty:24,min:12,location:"All residences",cost:1.5,status:"ok"},{item:"San Pellegrino",type:"Water",qty:24,min:12,location:"All residences",cost:1.5,status:"ok"},{item:"Counter Culture beans",type:"Coffee",qty:2,min:2,location:"ER + PR",cost:18,status:"low"},{item:"Harney & Sons camomile",type:"Tea",qty:3,min:2,location:"All residences",cost:12,status:"ok"},{item:"Aesop Body Wash",type:"Toiletry",qty:4,min:3,location:"All residences",cost:40,status:"ok"},{item:"Drunk Elephant Protini",type:"Toiletry",qty:1,min:1,location:"PR primary",cost:68,status:"ok"},{item:"Frette linens 600TC",type:"Linen",qty:4,min:2,location:"ER + PR",cost:350,status:"ok"},{item:"Fog Linen napkins",type:"Linen",qty:12,min:8,location:"PR dining",cost:15,status:"ok"}];
+const DC=[{item:"Canadian Passport (Mr. Leigh)",due:"2026-06-15",category:"Travel",action:"Renewal — allow 6-8 weeks"},{item:"BMW Registration (Ontario)",due:"2026-06-01",category:"Vehicle",action:"Online at ServiceOntario.ca"},{item:"BMW Lease End",due:"2028-06-30",category:"Vehicle",action:"Residual ~CAD $42K"},{item:"BMW Insurance",due:"2026-07-15",category:"Vehicle",action:"Aviva Canada renewal"},{item:"Rabies Vaccine (Winston)",due:"2026-04-15",category:"Pet",action:"Dr. Karen Webb (212) 555-0187"},{item:"Bordetella (Winston)",due:"2026-04-15",category:"Pet",action:"Same vet visit"},{item:"Fire Extinguisher (ER)",due:"2026-07-01",category:"Safety",action:"Check pressure, pin, seal"},{item:"Fire Extinguisher (PR)",due:"2026-07-01",category:"Safety",action:"ABC + K-class (kitchen)"},{item:"HVAC Filters (all)",due:"2026-04-01",category:"Maintenance",action:"Metro Climate (212) 555-0642"},{item:"Marble Resealing",due:"2026-09-01",category:"Maintenance",action:"ER + PR. March/September"},{item:"PR Homeowner's Insurance",due:"2026-06-01",category:"Insurance",action:"Annual renewal"},{item:"ER Renter's Insurance",due:"2026-08-01",category:"Insurance",action:"Annual renewal"},{item:"Annual Physical (Mr. Leigh)",due:"2026-10-01",category:"Medical",action:"Dr. Sullivan (212) 555-0234"},{item:"Dental Cleaning (both)",due:"2026-06-01",category:"Medical",action:"Dr. Tanaka (212) 555-0612"},{item:"Mrs. Leigh NEXUS",due:"2026-05-01",category:"Travel",action:"Schedule Pearson YYZ interview"},{item:"Garden Service Start",due:"2026-04-01",category:"Maintenance",action:"Green Thumb (212) 555-1590"},{item:"Smoke Detectors",due:"2026-01-01",category:"Safety",action:"Replace batteries annually"}];
+const DG=[{name:"James Chen",relation:"Investment partner",company:"Meridian Capital",visits:3,coffee:"Black, no sugar",dietary:"No cilantro",nda:true,notes:"Early riser. Current events."},{name:"Robert & Catherine Leigh",relation:"Parents (his)",company:"",visits:2,coffee:"Regular with milk",dietary:"None",nda:false,notes:"Toronto. 2-3 night stays."},{name:"Dr. David & Margaret Walsh",relation:"Parents (hers)",company:"",visits:2,coffee:"Decaf",dietary:"Margaret: allergies",nda:false,notes:"Boston. Art + architecture."},{name:"Charlotte Walsh-Price",relation:"Sister (hers)",company:"",visits:1,coffee:"Flat white",dietary:"None",nda:false,notes:"London. Fine dining."},{name:"Thomas Leigh",relation:"Brother (his)",company:"",visits:1,coffee:"Casual",dietary:"None",nda:false,notes:"Vancouver. Late 20s."}];
+const DP=`You are the AI operations assistant for the Leigh Household Butler Book. Answer precisely.\nPRINCIPALS: Andrew Leigh (early 30s, Leigh Infrastructure Capital, ~$120M) and Kate Leigh (nee Walsh, design strategist).\nRESIDENCES: ER 3,800sqft Tribeca. PR 4,200sqft West Village. TR 2,200sqft Yorkville, Toronto.\nSTAFF: Butler $130K, Housekeeper $58K, Chef $62K (4 days/week). Budget: $515,000/year.\nROUTINE: Butler 5:45 AM. Mr. Leigh 6:30 (black coffee, Counter Culture, LIC mug). Mrs. Leigh 7:00 (camomile, Harney & Sons, Kinto teapot).\nTEMPS: ER office 68-69F. PR living 70-72F. Bedrooms 67-68F. TR 21C.\nCRITICAL: NO CILANTRO. Mrs. Leigh pollen allergy Mar-May. No synthetic fragrances.\nPET: Winston, Springer Spaniel, 3 yrs. Vet: Dr. Webb (212) 555-0187.\nSERVICE: Serve left, clear right. Wine from right. S-O-R format.\nKeep answers concise, professional. British spelling.`;
+const DCFG={name:"The Leigh Household",systemPrompt:DP,inventory:DI,compliance:DC,guests:DG};
+function ldCfg(){try{const s=localStorage.getItem("hh_cfg");return s?{...DCFG,...JSON.parse(s)}:DCFG}catch(e){return DCFG}}
+function svCfg(c){try{localStorage.setItem("hh_cfg",JSON.stringify(c))}catch(e){}}
+function ldUrl(){try{return localStorage.getItem("hh_w")||""}catch(e){return""}}
+function svUrl(u){try{localStorage.setItem("hh_w",u)}catch(e){}}
+async function ai(url,msg,sys){if(!url)throw new Error("Worker URL not set");const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1024,system:sys,messages:[{role:"user",content:msg}]})});if(!r.ok)throw new Error("API "+r.status);const d=await r.json();return d.content?.map(b=>b.text||"").join("")||""}
+function Particles(){const ps=Array.from({length:10},(_,i)=>({id:i,l:Math.random()*100,d:Math.random()*20,t:15+Math.random()*20,s:1+Math.random()}));return<>{ps.map(p=><div key={p.id} className="particle" style={{left:p.l+"%",width:p.s,height:p.s,animationDelay:p.d+"s",animationDuration:p.t+"s"}}/>)}</>}
+function Dots(){return<div className="ldots"><span/><span/><span/></div>}
+function Setup({url,set}){if(url)return null;return<div className="sbanner"><div className="sbt">Connect AI</div><div className="stx">Enter Cloudflare Worker URL for Q&A, briefings, guest prep.</div><input placeholder="https://your-worker.workers.dev" onBlur={e=>{if(e.target.value.trim()){set(e.target.value.trim());svUrl(e.target.value.trim())}}}/></div>}
+function greet(){const h=new Date().getHours();return h<12?"Good morning":h<17?"Good afternoon":"Good evening"}
+function LiveClock(){const[t,setT]=useState(new Date());useEffect(()=>{const i=setInterval(()=>setT(new Date()),1000);return()=>clearInterval(i)},[]);const h=String(t.getHours()).padStart(2,'0'),m=String(t.getMinutes()).padStart(2,'0'),s=String(t.getSeconds()).padStart(2,'0');return<span className="live-clock">{h}<span className="clock-sep">:</span>{m}<span className="clock-sep">:</span>{s}</span>}
+
+function DashPanel({cfg}){
+  const today=new Date();const inv=cfg.inventory;const comp=cfg.compliance.map(c=>({...c,days:Math.ceil((new Date(c.due)-today)/86400000)}));
+  const alerts=inv.filter(i=>i.status!=="ok");const overdue=comp.filter(c=>c.days<0);const urgent=comp.filter(c=>c.days>=0&&c.days<=30);const ok=inv.filter(i=>i.status==="ok");
+  const nextUp=comp.filter(c=>c.days>=0).sort((a,b)=>a.days-b.days).slice(0,5);
+  return<div className="pan">
+    <div className="sh"><h2>Dashboard</h2><p>Household operations overview</p></div>
+    <>{(()=>{const ovItems=comp.filter(c=>c.days<0);return ovItems.length>0?<div className="ticker-wrap"><div className="ticker">{[...ovItems,...ovItems].map((c,i)=><div key={i} className="ticker-item"><span className="tdot"/>{c.item} — {Math.abs(c.days)} days overdue</div>)}</div></div>:null})()}</>
+    <div className="kpi-row stg">
+      <div className="card kpi kpi-red tilt glow-card anim-border"><div className="kn"><span className="kpi-num d1">{overdue.length}</span></div><div className="kl">Overdue</div><div className="ks" style={{color:"var(--red)"}}><span className="pulse pulse-red"/>Needs action</div></div>
+      <div className="card kpi kpi-amber tilt glow-card anim-border"><div className="kn"><span className="kpi-num d2">{urgent.length}</span></div><div className="kl">Due 30 days</div><div className="ks" style={{color:"var(--amber)"}}><span className="pulse pulse-amber"/>Upcoming</div></div>
+      <div className="card kpi kpi-green tilt glow-card anim-border"><div className="kn"><span className="kpi-num d3">{ok.length}</span></div><div className="kl">In stock</div><div className="ks" style={{color:"var(--green)"}}><span className="pulse pulse-green"/>Of {inv.length} items</div></div>
+      <div className="card kpi kpi-gold tilt glow-card anim-border"><div className="kn"><span className="kpi-num d4">{alerts.length}</span></div><div className="kl">Reorder</div><div className="ks" style={{color:"var(--gold)"}}>{alerts.map(a=>a.item).slice(0,2).join(", ")}{alerts.length>2?"...":""}</div></div>
+    </div>
+    <div className="dash-grid stg">
+      <div className="card dash-section tilt"><div className="ds-title">📅 Next Deadlines</div>{nextUp.map((c,i)=><div key={i} className="dash-item"><span className="di-name">{c.item}</span><span className="di-val" style={{color:c.days<=14?"var(--red)":c.days<=30?"var(--amber)":"var(--text)"}}>{c.days}d</span></div>)}</div>
+      <div className="card dash-section tilt"><div className="ds-title">📦 Inventory Alerts</div>{alerts.length===0?<div style={{color:"var(--text2)",fontSize:11,padding:"8px 0"}}>All items in stock</div>:alerts.map((a,i)=><div key={i} className="dash-item"><span className="di-name">{a.item}</span><span className={"badge "+(a.status==="low"?"b-low":"b-reorder")}>{a.status}</span></div>)}</div>
+    </div>
+    <div className="dash-grid stg">
+      <div className="card dash-section tilt"><div className="ds-title">👤 Guest Profiles</div>{cfg.guests.slice(0,5).map((g,i)=><div key={i} className="dash-item"><span className="di-name">{g.name}</span><span className="di-val" style={{color:"var(--text2)",fontWeight:400,fontSize:10}}>{g.relation}</span></div>)}</div>
+      <div className="card dash-section tilt"><div className="ds-title">🏠 Quick Facts</div>
+        <div className="dash-item"><span className="di-name">Residences</span><span className="di-val" style={{color:"var(--gold)"}}>3</span></div>
+        <div className="dash-item"><span className="di-name">Staff</span><span className="di-val" style={{color:"var(--gold)"}}>4</span></div>
+        <div className="dash-item"><span className="di-name">Annual Budget</span><span className="di-val" style={{color:"var(--gold)"}}>$515K</span></div>
+        <div className="dash-item"><span className="di-name">Compliance Items</span><span className="di-val" style={{color:"var(--gold)"}}>{cfg.compliance.length}</span></div>
+      </div>
+    </div>
+  </div>;
+}
+
+function QAPanel({url,sys}){
+  const[ms,setMs]=useState([]);const[inp,setInp]=useState("");const[busy,setBusy]=useState(false);const end=useRef(null);
+  useEffect(()=>{end.current?.scrollIntoView({behavior:"smooth"})},[ms]);
+  const send=async()=>{if(!inp.trim()||busy)return;const q=inp.trim();setInp("");setMs(p=>[...p,{r:"u",t:q}]);setBusy(true);try{const a=await ai(url,q,sys);setMs(p=>[...p,{r:"a",t:a}])}catch(e){setMs(p=>[...p,{r:"a",t:url?"Error: "+e.message:"Set Worker URL first."}])}setBusy(false)};
+  const sugs=["What temperature for the ER office?","How does Mr. Leigh take his coffee?","Emergency vet number?","S-O-R format?","Wine for investor dinners?","What if a pipe bursts at 2 AM?"];
+  return<div className="pan" style={{display:"flex",flexDirection:"column",height:"calc(100vh - 100px)"}}>
+    <div className="sh"><h2>Butler Book Q&A</h2><p>Ask anything about the household</p></div>
+    <div className="ca" style={{flex:1}}>{ms.length===0&&<div className="emp"><div className="ei">📖</div><p>Ask a question about the household</p><div className="sugs">{sugs.map((s,i)=><button key={i} className="sug" onClick={()=>setInp(s)}>{s}</button>)}</div></div>}{ms.map((m,i)=><div key={i} className={"cm "+(m.r==="u"?"u":"a")}><div className="cb">{m.t}</div></div>)}{busy&&<Dots/>}<div ref={end}/></div>
+    <div className="cir"><input className="cin" value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Ask about the household..."/><button className="bg" onClick={send} disabled={busy}>Send</button></div>
+  </div>;
+}
+
+function BriefingPanel({url,sys}){
+  const[dt,setDt]=useState(new Date().toISOString().split("T")[0]);const[res,setRes]=useState(null);const[busy,setBusy]=useState(false);
+  const gen=async()=>{setBusy(true);try{const a=await ai(url,"Generate a complete daily butler briefing for "+dt+". Include: schedules, residence status, staff, vendors, menu, guests, reminders. Be specific with names and products.",sys);setRes(a)}catch(e){setRes(url?"Error: "+e.message:"Set Worker URL first.")}setBusy(false)};
+  return<div className="pan"><div className="sh"><h2>Daily Briefing</h2><p>Auto-generate the morning briefing</p></div>
+    <div style={{padding:"0 28px 16px",display:"flex",gap:10,alignItems:"center",animation:"fu .5s var(--ease) .25s both"}}><input type="date" value={dt} onChange={e=>setDt(e.target.value)} style={{background:"var(--navy2)",border:"1px solid rgba(23,40,64,0.5)",color:"#fff",padding:"10px 14px",borderRadius:8,fontSize:12,fontFamily:"var(--body)"}}/><button className="bg" onClick={gen} disabled={busy}>{busy?"Generating...":"Generate Briefing"}</button></div>
+    {res?<div className="rbox">{res}</div>:!busy&&<div className="emp"><div className="ei">📋</div><p>Select a date and generate</p><p className="es">Includes schedules, menus, vendors, reminders</p></div>}
+  </div>;
+}
+
+function InventoryPanel({data}){
+  const[f,setF]=useState("all");const alerts=data.filter(i=>i.status!=="ok");
+  const items=f==="all"?data:f==="alert"?alerts:data.filter(i=>i.type===f);
+  const types=["all","alert","Wine","Spirit","Water","Coffee","Tea","Toiletry","Linen"];
+  return<div className="pan"><div className="sh"><h2>Inventory & Reorder</h2><p>Stock levels across all residences</p></div>
+    {alerts.length>0&&<div className="alert"><span className="ai">⚠️</span><div><div className="at">{alerts.length} items need attention</div><div className="ad">{alerts.map(a=>a.item).join(" · ")}</div></div></div>}
+    <div className="frow">{types.map(t=><button key={t} className={"fb "+(f===t?"on":"")} onClick={()=>setF(t)}>{t==="alert"?"⚠ Alerts ("+alerts.length+")":t}</button>)}</div>
+    <div className="tw"><table className="tbl"><thead><tr>{["Item","Type","Qty","Min","Location","Unit $","Status"].map(h=><th key={h}>{h}</th>)}</tr></thead><tbody className="stg">{items.map((it,i)=><tr key={i}><td className="in">{it.item}</td><td className="mt">{it.type}</td><td className={it.qty<=it.min?"wr":""}>{it.qty}</td><td className="mt">{it.min}</td><td className="mt" style={{fontSize:10.5}}>{it.location}</td><td className="mt">${it.cost}</td><td><span className={"badge b-"+it.status}>{it.status}</span><div className="prog-track"><div className="prog-bar-fill" style={{width:Math.min(100,it.qty/Math.max(it.min,1)*100)+"%",background:it.status==="ok"?"var(--green)":it.status==="low"?"var(--amber)":"var(--red)"}}/></div></td></tr>)}</tbody></table></div>
+  </div>;
+}
+
+function GuestPanel({url,sys,data}){
+  const[sel,setSel]=useState(null);const[prep,setPrep]=useState(null);const[busy,setBusy]=useState(false);const[cust,setCust]=useState("");
+  const gen=async g=>{setBusy(true);const info=g?"Guest: "+g.name+". "+g.relation+". Coffee: "+g.coffee+". Dietary: "+g.dietary+". NDA: "+g.nda+". Notes: "+g.notes+".":"New guest: "+cust+". No prior visits.";try{const a=await ai(url,"Generate guest preparation checklist. "+info+"\nInclude: pre-arrival, day-of, arrival, during, post-visit. NO CILANTRO.",sys);setPrep(a)}catch(e){setPrep(url?"Error: "+e.message:"Set Worker URL first.")}setBusy(false)};
+  return<div className="pan"><div className="sh"><h2>Guest Preparation</h2><p>Select a profile or enter a new name</p></div>
+    <div className="gcards">{data.map((g,i)=><div key={i} className={"card gc "+(sel===g?"sel":"")} onClick={()=>{setSel(g);setPrep(null)}}><div className="gn">{g.name}</div><div className="gr">{g.relation}</div></div>)}</div>
+    <div style={{padding:"0 28px 14px",display:"flex",gap:8}}><input className="cin" value={cust} onChange={e=>setCust(e.target.value)} placeholder="Or enter new guest..." style={{fontSize:11}}/><button className="bo" onClick={()=>{setSel(null);gen(null)}} disabled={!cust.trim()||busy}>New Guest</button></div>
+    {sel&&!prep&&<div><div className="gdet"><div><span className="gl">Company: </span><span className="gv">{sel.company||"—"}</span></div><div><span className="gl">Visits: </span><span className="gv">{sel.visits}</span></div><div><span className="gl">Coffee: </span><span className="gv">{sel.coffee}</span></div><div><span className="gl">Dietary: </span><span className="gv">{sel.dietary}</span></div><div><span className={sel.nda?"ny":"nn"}>NDA: {sel.nda?"On file ✓":"Required"}</span></div><div><span className="gl">Notes: </span><span className="gv">{sel.notes}</span></div></div><div style={{padding:"0 28px"}}><button className="bg" style={{width:"100%"}} onClick={()=>gen(sel)} disabled={busy}>{busy?"Generating...":"Generate Checklist"}</button></div></div>}
+    {prep&&<div className="rbox" style={{margin:"14px 28px 0"}}>{prep}</div>}
+  </div>;
+}
+
+function CompliancePanel({data}){
+  const[f,setF]=useState("all");const[range,setRange]=useState("all");const today=new Date();
+  const items=data.map(c=>{const d=Math.ceil((new Date(c.due)-today)/86400000);return{...c,days:d,urg:d<0?"critical":d<=30?"high":d<=90?"medium":"low"}}).sort((a,b)=>a.days-b.days);
+  const ov=items.filter(i=>i.days<0).length,ur=items.filter(i=>i.days>=0&&i.days<=30).length,up=items.filter(i=>i.days>30&&i.days<=90).length;
+  let fi=items;
+  if(range==="7d")fi=items.filter(i=>i.days>=-7&&i.days<=7);
+  else if(range==="30d")fi=items.filter(i=>i.days>=-30&&i.days<=30);
+  else if(range==="90d")fi=items.filter(i=>i.days>=-90&&i.days<=90);
+  else if(range==="overdue")fi=items.filter(i=>i.days<0);
+  if(f!=="all")fi=fi.filter(i=>i.category===f);
+  const cats=["all","Travel","Vehicle","Pet","Safety","Medical","Insurance","Maintenance"];
+  return<div className="pan"><div className="sh"><h2>Compliance Calendar</h2><p>Every deadline, renewal, and inspection</p></div>
+    <div className="sboxes stg">
+      <div className="sb glow-card" style={{background:"rgba(232,112,106,0.08)",border:"1px solid rgba(232,112,106,0.12)"}}><div className="sn" style={{color:"var(--red)"}}><span className="kpi-num d1">{ov}</span></div><div className="sl" style={{color:"var(--red)"}}>Overdue</div></div>
+      <div className="sb glow-card" style={{background:"rgba(212,160,76,0.08)",border:"1px solid rgba(212,160,76,0.12)"}}><div className="sn" style={{color:"var(--amber)"}}><span className="kpi-num d2">{ur}</span></div><div className="sl" style={{color:"var(--amber)"}}>Next 30 Days</div></div>
+      <div className="sb glow-card" style={{background:"rgba(196,185,68,0.06)",border:"1px solid rgba(196,185,68,0.1)"}}><div className="sn" style={{color:"#C4B944"}}><span className="kpi-num d3">{up}</span></div><div className="sl" style={{color:"#C4B944"}}>Next 90 Days</div></div>
+    </div>
+    <div className="frow"><span style={{color:"var(--text2)",fontSize:10,fontWeight:600,letterSpacing:".5px",textTransform:"uppercase",padding:"6px 0",marginRight:4}}>Range:</span>{["all","7d","30d","90d","overdue"].map(r=><button key={r} className={"fb "+(range===r?"on":"")} onClick={()=>setRange(r)}>{r==="all"?"All Time":r==="7d"?"This Week":r==="30d"?"This Month":r==="90d"?"Quarter":"Overdue"}</button>)}</div>
+    <div className="frow"><span style={{color:"var(--text2)",fontSize:10,fontWeight:600,letterSpacing:".5px",textTransform:"uppercase",padding:"6px 0",marginRight:4}}>Type:</span>{cats.map(c=><button key={c} className={"fb "+(f===c?"on":"")} onClick={()=>setF(c)}>{c}</button>)}</div>
+    <div className="stg">{fi.map((it,i)=><div key={i} className={"card ci "+it.urg}><div className="cd"><div className={"dn "+(it.days<0?"ov":it.days<=30?"ur":"")}>{Math.abs(it.days)}d</div><div className="ds">{it.days<0?"overdue":"left"}</div></div><div className="cif"><div className="cn">{it.item}</div><div className="cac">{it.action}</div></div><div className="cmt"><div className="cdt">{it.due}</div><div className="cct">{it.category}</div></div></div>)}{fi.length===0&&<div style={{textAlign:"center",padding:"24px 0",color:"var(--text2)",fontSize:12}}>No items match these filters</div>}</div>
+  </div>;
+}
+
+function ConfigPanel({cfg,setCfg,url,setParentUrl}){
+  const[imp,setImp]=useState("");const[msg,setMsg]=useState("");const[json,setJson]=useState("");const[workerUrl,setWorkerUrl]=useState(url||"");
+  const[dragging,setDragging]=useState(false);const[processing,setProcessing]=useState(false);const[progMsg,setProgMsg]=useState("");const fileRef=useRef(null);
+  const upd=(k,v)=>{const c={...cfg,[k]:v};setCfg(c);svCfg(c)};
+  const doExport=()=>{const j=JSON.stringify(cfg,null,2);setJson(j);try{navigator.clipboard.writeText(j);setMsg("Copied to clipboard!")}catch(e){setMsg("JSON shown below.")}};
+  const doImport=()=>{try{const c=JSON.parse(imp);if(!c.name||!c.systemPrompt){setMsg("Need name and systemPrompt.");return}const m={...DCFG,...c};setCfg(m);svCfg(m);setImp("");setMsg("Imported!")}catch(e){setMsg("Invalid JSON: "+e.message)}};
+  const doReset=()=>{setCfg(DCFG);svCfg(DCFG);setMsg("Reset to defaults.")};
+  const handleFile=async file=>{
+    if(!file||!file.name.toLowerCase().endsWith('.pdf')){setMsg("Drop a PDF file.");return}
+    if(!url){setMsg("Connect Worker URL first.");return}
+    setProcessing(true);setProgMsg("Reading PDF...");
+    try{const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Read failed"));r.readAsDataURL(file)});
+    setProgMsg("AI is analysing the butler book...");
+    const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4096,messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Analyse this butler book PDF. Extract ALL details and return a JSON object with: name (household name), systemPrompt (comprehensive 500+ word prompt with every detail: names, residences, staff, schedules, temperatures, dietary, pets, vendors, phones, service standards), guests (array: name, relation, company, visits, coffee, dietary, nda boolean, notes), inventory (array: item, type, qty, min, location, cost, status ok/low/reorder), compliance (array: item, due YYYY-MM-DD, category, action). Return ONLY valid JSON."}]}]})});
+    if(!resp.ok)throw new Error("API "+resp.status);
+    setProgMsg("Parsing...");const data=await resp.json();const txt=data.content?.map(b=>b.text||"").join("")||"";const clean=txt.replace(/```json|```/g,"").trim();const parsed=JSON.parse(clean);
+    if(!parsed.name||!parsed.systemPrompt)throw new Error("Missing fields");
+    const merged={...DCFG,...parsed};setCfg(merged);svCfg(merged);setMsg("Imported \""+merged.name+"\"! "+merged.guests.length+" guests, "+merged.inventory.length+" inventory, "+merged.compliance.length+" compliance items.")}
+    catch(e){setMsg("Error: "+e.message)}setProcessing(false);setProgMsg("")};
+  return<div className="pan"><div className="sh"><h2>Configuration</h2><p>Switch households or customise</p></div>
+    <div style={{padding:"0 28px"}}>
+      <div className={"dz "+(dragging?"ov":"")+(processing?" pr":"")} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={e=>{e.preventDefault();setDragging(false);handleFile(e.dataTransfer?.files?.[0])}} onClick={()=>!processing&&fileRef.current?.click()}>
+        <input ref={fileRef} type="file" accept=".pdf" style={{display:"none"}} onChange={e=>handleFile(e.target?.files?.[0])}/>
+        {processing?<div><div className="di">⏳</div><div className="dt">{progMsg}</div><div className="pbar"><div className="pfill"/></div></div>:<div><div className="di">📄</div><div className="dt">Drop a Butler Book PDF here</div><div className="dd">AI reads the PDF and auto-configures everything</div></div>}
+      </div>
+      <div className="cbox">
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}><div className="cbox-t">Current Household</div><div style={{display:"flex",gap:6}}><button className="bo" onClick={doExport} style={{fontSize:10,padding:"5px 12px"}}>Export</button><button className="bo" onClick={doReset} style={{fontSize:10,padding:"5px 12px",borderColor:"var(--red)",color:"var(--red)"}}>Reset</button></div></div>
+        <div style={{marginBottom:8}}><label className="clbl">Name</label><input className="cin" value={cfg.name} onChange={e=>upd("name",e.target.value)} style={{width:"100%",fontSize:12}}/></div>
+        <div style={{marginBottom:8}}><label className="clbl">Worker URL <span style={{opacity:.5,textTransform:"none",letterSpacing:0}}>(Cloudflare proxy for AI features)</span></label><input className="cin" value={workerUrl} onChange={e=>setWorkerUrl(e.target.value)} onBlur={e=>{const v=e.target.value.trim();svUrl(v);setParentUrl(v)}} placeholder="https://your-worker.workers.dev" style={{width:"100%",fontSize:11,fontFamily:"var(--mono)"}}/></div>
+        <div style={{marginBottom:8}}><label className="clbl">System Prompt</label><textarea className="cta" value={cfg.systemPrompt} onChange={e=>upd("systemPrompt",e.target.value)} style={{minHeight:120}}/></div>
+        <div className="cstats"><div className="csb"><div className="cn">{cfg.inventory.length}</div><div className="cl">Inventory</div></div><div className="csb"><div className="cn">{cfg.compliance.length}</div><div className="cl">Compliance</div></div><div className="csb"><div className="cn">{cfg.guests.length}</div><div className="cl">Guests</div></div></div>
+      </div>
+      <div className="cbox"><div className="cbox-t">Import JSON</div><textarea className="cta" value={imp} onChange={e=>setImp(e.target.value)} placeholder='{"name":"...","systemPrompt":"..."}' style={{minHeight:80,marginBottom:8}}/><button className="bg" onClick={doImport} disabled={!imp.trim()} style={{width:"100%"}}>Import</button></div>
+      {msg&&<div className="cmb">{msg}</div>}
+      {json&&<div className="cbox"><pre style={{background:"var(--navy2)",padding:12,borderRadius:8,fontSize:10,color:"var(--text)",overflow:"auto",maxHeight:250,fontFamily:"var(--mono)",lineHeight:1.5}}>{json}</pre></div>}
+    </div>
+  </div>;
+}
+
+function App(){
+  const[tab,setTab]=useState("dash");const[url,setUrl]=useState(ldUrl);const[cfg,setCfg]=useState(ldCfg);const[key,setKey]=useState(0);
+  const tabs=[{id:"dash",l:"Dashboard",ic:"◈"},{id:"qa",l:"Q&A",ic:"📖"},{id:"briefing",l:"Briefing",ic:"📋"},{id:"inventory",l:"Inventory",ic:"📦"},{id:"guests",l:"Guests",ic:"👤"},{id:"compliance",l:"Compliance",ic:"📅"},{id:"config",l:"Config",ic:"⚙️"}];
+  const sw=id=>{setTab(id);setKey(k=>k+1)};
+  return<div><Particles/>
+    <div className="hdr"><div className="hdr-l"><div className="sup">{cfg.name}</div><div className="ttl shimmer-text">Operations System</div></div><div className="hdr-r"><div className="greet">{greet()} · <LiveClock/></div><div>{new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div><div>Strictly Confidential</div></div></div>
+    <div className="nav">{tabs.map(t=><button key={t.id} className={"nt "+(tab===t.id?"on":"")} onClick={()=>sw(t.id)}><span className="ic">{t.ic}</span><span>{t.l}</span></button>)}</div>
+    <div className="main" key={key}><Setup url={url} set={u=>{setUrl(u);svUrl(u)}}/>
+      {tab==="dash"&&<DashPanel cfg={cfg}/>}
+      {tab==="qa"&&<QAPanel url={url} sys={cfg.systemPrompt}/>}
+      {tab==="briefing"&&<BriefingPanel url={url} sys={cfg.systemPrompt}/>}
+      {tab==="inventory"&&<InventoryPanel data={cfg.inventory}/>}
+      {tab==="guests"&&<GuestPanel url={url} sys={cfg.systemPrompt} data={cfg.guests}/>}
+      {tab==="compliance"&&<CompliancePanel data={cfg.compliance}/>}
+      {tab==="config"&&<ConfigPanel cfg={cfg} setCfg={setCfg} url={url} setParentUrl={setUrl}/>}
+    </div>
+  </div>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
