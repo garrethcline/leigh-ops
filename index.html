@@ -284,10 +284,10 @@ function DashPanel({cfg}){
 
 function QAPanel({url,sys}){
   const[ms,setMs]=useState([]);const[inp,setInp]=useState("");const[busy,setBusy]=useState(false);const end=useRef(null);
-  useEffect(()=>{end.current?.scrollIntoView({behavior:"smooth"})},[ms]);
+  useEffect(()=>{if(ms.length>0)end.current?.scrollIntoView({behavior:"smooth"})},[ms]);
   const send=async()=>{if(!inp.trim()||busy)return;const q=inp.trim();setInp("");setMs(p=>[...p,{r:"u",t:q}]);setBusy(true);try{const a=await ai(url,q,sys);setMs(p=>[...p,{r:"a",t:a}])}catch(e){setMs(p=>[...p,{r:"a",t:url?"Error: "+e.message:"Set Worker URL first."}])}setBusy(false)};
   const sugs=["What temperature for the ER office?","How does Mr. Leigh take his coffee?","Emergency vet number?","S-O-R format?","Wine for investor dinners?","What if a pipe bursts at 2 AM?"];
-  return<div className="pan" style={{display:"flex",flexDirection:"column",height:"calc(100vh - 100px)"}}>
+  return<div className="pan" style={{display:"flex",flexDirection:"column",height:"calc(100vh - 140px)",overflow:"hidden"}}>
     <div className="sh"><h2>Butler Book Q&A</h2><p>Ask anything about the household</p></div>
     <div className="ca" style={{flex:1}}>{ms.length===0&&<div className="emp"><div className="ei">📖</div><p>Ask a question about the household</p><div className="sugs">{sugs.map((s,i)=><button key={i} className="sug" onClick={()=>setInp(s)}>{s}</button>)}</div></div>}{ms.map((m,i)=><div key={i} className={"cm "+(m.r==="u"?"u":"a")}><div className="cb">{m.t}</div></div>)}{busy&&<Dots/>}<div ref={end}/></div>
     <div className="cir"><input className="cin" value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Ask about the household..."/><button className="bg" onClick={send} disabled={busy}>Send</button></div>
